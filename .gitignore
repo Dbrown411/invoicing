@@ -1,0 +1,5 @@
+.venv
+sender/*
+jobs/*
+recipients/*
+invoices/*
