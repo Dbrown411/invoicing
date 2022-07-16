@@ -3,3 +3,5 @@ sender/*
 jobs/*
 recipients/*
 invoices/*
+__pycache__
+**/__pycache__

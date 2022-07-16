@@ -1,12 +1,10 @@
 from pathlib import Path
 from decimal import Decimal
-import random, json
 from datetime import datetime
 from borb.pdf import Document, Page, Image, SingleColumnLayout, PDF
 from borb.pdf import TableCell, HexColor, X11Color, Paragraph, Alignment
 from borb.pdf import FixedColumnWidthTable as Table
-from people import Sender, Recipient
-from jobs import Job, assign_invoice_number, date_by_adding_business_days
+from jobs import Job, date_by_adding_business_days
 
 output_dir = Path("./invoices")
 today = datetime.now()
@@ -87,8 +85,14 @@ def _build_billing_and_shipping_information(job: "Job"):
 
 
 def _build_itemized_description_table(job: "Job"):
-    table_001 = Table(number_of_rows=15, number_of_columns=4)
-    for h in ["DESCRIPTION", "QTY", "UNIT PRICE", "AMOUNT"]:
+    min_lineitems = 8
+    n_rows = len(job.line_items)
+    if n_rows < min_lineitems:
+        n_rows = min_lineitems
+    n_rows += 5
+
+    table_001 = Table(number_of_rows=n_rows, number_of_columns=4)
+    for h in ["DESCRIPTION", "QTY/HRS", "UNIT PRICE/RATE", "AMOUNT"]:
         table_001.add(
             TableCell(
                 Paragraph(h, font_color=X11Color("White")),
@@ -97,15 +101,17 @@ def _build_itemized_description_table(job: "Job"):
 
     odd_color = HexColor("BBBBBB")
     even_color = HexColor("FFFFFF")
-    for row_number, item in enumerate([("Product 1", 2, 50),
-                                       ("Product 2", 4, 60),
-                                       ("Labor", 14, 60)]):
+    for row_number, line_item in enumerate(job.line_items):
         c = even_color if row_number % 2 == 0 else odd_color
-        table_001.add(TableCell(Paragraph(item[0]), background_color=c))
-        table_001.add(TableCell(Paragraph(str(item[1])), background_color=c))
-        table_001.add(TableCell(Paragraph(f"$ {item[2]}"), background_color=c))
         table_001.add(
-            TableCell(Paragraph(f"$ {item[1] * item[2]}"), background_color=c))
+            TableCell(Paragraph(line_item.description), background_color=c))
+        table_001.add(
+            TableCell(Paragraph(f"{line_item.hours}"), background_color=c))
+        table_001.add(
+            TableCell(Paragraph(f"$ {line_item.rate}"), background_color=c))
+        table_001.add(
+            TableCell(Paragraph(f"$ {line_item.linetotal}"),
+                      background_color=c))
 
 
 # Optionally add some empty rows to have a fixed number of rows for styling purposes
@@ -124,8 +130,9 @@ def _build_itemized_description_table(job: "Job"):
             col_span=3,
         ))
     table_001.add(
-        TableCell(Paragraph("$ 1,180.00",
-                            horizontal_alignment=Alignment.RIGHT)))
+        TableCell(
+            Paragraph(f"$ {job.subtotal}",
+                      horizontal_alignment=Alignment.RIGHT)))
     table_001.add(
         TableCell(
             Paragraph(
@@ -136,7 +143,9 @@ def _build_itemized_description_table(job: "Job"):
             col_span=3,
         ))
     table_001.add(
-        TableCell(Paragraph("$ 177.00", horizontal_alignment=Alignment.RIGHT)))
+        TableCell(
+            Paragraph(f"$ {job.discounts}",
+                      horizontal_alignment=Alignment.RIGHT)))
     table_001.add(
         TableCell(
             Paragraph("Taxes",
@@ -145,7 +154,8 @@ def _build_itemized_description_table(job: "Job"):
             col_span=3,
         ))
     table_001.add(
-        TableCell(Paragraph("$ 100.30", horizontal_alignment=Alignment.RIGHT)))
+        TableCell(
+            Paragraph(f"$ {job.tax}", horizontal_alignment=Alignment.RIGHT)))
     table_001.add(
         TableCell(
             Paragraph("Total",
@@ -154,8 +164,8 @@ def _build_itemized_description_table(job: "Job"):
             col_span=3,
         ))
     table_001.add(
-        TableCell(Paragraph("$ 1163.30",
-                            horizontal_alignment=Alignment.RIGHT)))
+        TableCell(
+            Paragraph(f"$ {job.total}", horizontal_alignment=Alignment.RIGHT)))
     table_001.set_padding_on_all_cells(Decimal(2), Decimal(2), Decimal(2),
                                        Decimal(2))
     table_001.no_borders()
@@ -163,42 +173,43 @@ def _build_itemized_description_table(job: "Job"):
 
 
 def main():
-    sender = Sender.from_json(Path('./sender/default.json'))
-    recipient = Recipient.from_json(Path('./recipients/spective.json'))
-    job = Job(date='20220715', sender=sender, recipient=recipient)
-    output_file = output_dir / "test.pdf"
-    # Create document
-    pdf = Document()
+    job_directory = Path(__file__).parent / "jobs"
+    for test_job in job_directory.glob("*.json"):
+        job = Job.from_json(test_job)
+        print(job)
+        output_file = output_dir / "test.pdf"
+        # Create document
+        pdf = Document()
 
-    # Add page
-    page = Page()
-    pdf.add_page(page)
+        # Add page
+        page = Page()
+        pdf.add_page(page)
 
-    page_layout = SingleColumnLayout(page)
-    page_layout.vertical_margin = page.get_page_info().get_height() * Decimal(
-        0.02)
+        page_layout = SingleColumnLayout(page)
+        page_layout.vertical_margin = page.get_page_info().get_height(
+        ) * Decimal(0.02)
 
-    page_layout.add(
-        Image(
-            "https://s3.stackabuse.com/media/articles/creating-an-invoice-in-python-with-ptext-1.png",
-            width=Decimal(128),
-            height=Decimal(128),
-        ))
+        # page_layout.add(
+        #     Image(
+        #         "https://s3.stackabuse.com/media/articles/creating-an-invoice-in-python-with-ptext-1.png",
+        #         width=Decimal(128),
+        #         height=Decimal(128),
+        #     ))
 
-    # Invoice information table
-    page_layout.add(_build_invoice_information(job))
+        # Invoice information table
+        page_layout.add(_build_invoice_information(job))
 
-    # Empty paragraph for spacing
-    page_layout.add(Paragraph(" "))
+        # Empty paragraph for spacing
+        page_layout.add(Paragraph(" "))
 
-    # Billing and shipping information table
-    page_layout.add(_build_billing_and_shipping_information(job))
+        # Billing and shipping information table
+        page_layout.add(_build_billing_and_shipping_information(job))
 
-    # Itemized description
-    page_layout.add(_build_itemized_description_table(job))
+        # Itemized description
+        page_layout.add(_build_itemized_description_table(job))
 
-    with open(output_file, "wb") as pdf_file_handle:
-        PDF.dumps(pdf_file_handle, pdf)
+        with open(output_file, "wb") as pdf_file_handle:
+            PDF.dumps(pdf_file_handle, pdf)
 
 
 if __name__ == "__main__":
