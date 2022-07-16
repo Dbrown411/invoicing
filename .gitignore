@@ -1,5 +1,5 @@
 .venv
-sender/*
+senders/*
 jobs/*
 recipients/*
 invoices/*
