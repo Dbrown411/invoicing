@@ -86,12 +86,11 @@ def _build_billing_and_shipping_information(job: "Job"):
 
 def _build_itemized_description_table(job: "Job"):
     min_lineitems = 8
-    n_rows = len(job.line_items)
+    n_items = n_rows = len(job.line_items)
+
     if n_rows < min_lineitems:
         n_rows = min_lineitems
-    n_rows += 5
-
-    table_001 = Table(number_of_rows=n_rows, number_of_columns=4)
+    table_001 = Table(number_of_rows=n_rows + 5, number_of_columns=4)
     for h in ["DESCRIPTION", "QTY/HRS", "UNIT PRICE/RATE", "AMOUNT"]:
         table_001.add(
             TableCell(
@@ -115,7 +114,7 @@ def _build_itemized_description_table(job: "Job"):
 
 
 # Optionally add some empty rows to have a fixed number of rows for styling purposes
-    for row_number in range(3, 10):
+    for row_number in range(1 + n_items, 1 + n_rows):
         c = even_color if row_number % 2 == 0 else odd_color
         for _ in range(0, 4):
             table_001.add(TableCell(Paragraph(" "), background_color=c))
@@ -166,8 +165,8 @@ def _build_itemized_description_table(job: "Job"):
     table_001.add(
         TableCell(
             Paragraph(f"$ {job.total}", horizontal_alignment=Alignment.RIGHT)))
-    table_001.set_padding_on_all_cells(Decimal(2), Decimal(2), Decimal(2),
-                                       Decimal(2))
+    # table_001.set_padding_on_all_cells(Decimal(2), Decimal(2), Decimal(2),
+    #    Decimal(2))
     table_001.no_borders()
     return table_001
 
@@ -204,6 +203,7 @@ def main():
 
         # Billing and shipping information table
         page_layout.add(_build_billing_and_shipping_information(job))
+        page_layout.add(Paragraph(" "))
 
         # Itemized description
         page_layout.add(_build_itemized_description_table(job))
