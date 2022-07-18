@@ -52,6 +52,9 @@ class Job:
     tax: int = field(default=0)
     subtotal: int = field(init=False)
     total: int = field(init=False)
+    reference: str = field()
+    paypal: str = field()
+    shipping: bool = field()
 
     def __attrs_post_init__(self):
         self.invoice_number = assign_invoice_number(self.date,
@@ -76,8 +79,18 @@ class Job:
             if recipient_name == recipient.stem.lower():
                 recipient = Recipient.from_json(recipient)
                 break
-
+        try:
+            paypal = f"https://www.paypal.com/invoice/p/{details['paypal_id']}"
+        except KeyError:
+            paypal = ""
+        try:
+            reference = details['reference']
+        except KeyError:
+            reference = ""
         return cls(sender=sender,
                    date=details['date'],
                    recipient=recipient,
-                   line_items=[LineItem.from_dict(d) for d in line_items])
+                   line_items=[LineItem.from_dict(d) for d in line_items],
+                   shipping=details['shipping'],
+                   paypal=paypal,
+                   reference=reference)

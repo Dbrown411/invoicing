@@ -1,6 +1,7 @@
 from pathlib import Path
 from attrs import define, field
 import json
+from typing import List
 
 recipient_folder = Path(__file__).parent / "recipients"
 sender_folder = Path(__file__).parent / "senders"
@@ -60,3 +61,10 @@ class Recipient:
             country=details['country'],
             phone=details['phone'],
         )
+
+    @property
+    def shipping(self) -> List[str]:
+        return [
+            self.name, self.company, self.street,
+            f"{self.city}, {self.state} {self.zip}", self.phone
+        ]
