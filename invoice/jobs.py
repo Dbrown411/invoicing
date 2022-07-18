@@ -1,7 +1,7 @@
 from pathlib import Path
 from attrs import define, field
 import json
-from people import Recipient, Sender, recipient_folder, sender_folder
+from .people import Recipient, Sender, recipient_folder, sender_folder
 import hashlib
 import datetime
 

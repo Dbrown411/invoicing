@@ -3,8 +3,8 @@ from attrs import define, field
 import json
 from typing import List
 
-recipient_folder = Path(__file__).parent / "recipients"
-sender_folder = Path(__file__).parent / "senders"
+recipient_folder = Path(__file__).parent / "data/recipients"
+sender_folder = Path(__file__).parent / "data/senders"
 
 
 @define(kw_only=True, slots=True)

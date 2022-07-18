@@ -1,3 +1,8 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .jobs import Job
+from .jobs import date_by_adding_business_days
 from pathlib import Path
 from decimal import Decimal
 from datetime import datetime
@@ -6,9 +11,8 @@ from borb.pdf import TableCell, HexColor, X11Color, Paragraph, Alignment
 from borb.pdf import FixedColumnWidthTable as Table
 from borb.pdf.canvas.layout.annotation.remote_go_to_annotation import (
     RemoteGoToAnnotation, )
-from jobs import Job, date_by_adding_business_days
 
-output_dir = Path("./invoices")
+output_dir = Path("./output")
 today = datetime.now()
 
 

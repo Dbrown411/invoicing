@@ -1,7 +1,8 @@
 .venv
-senders/*
-jobs/*
-recipients/*
-invoices/*
 __pycache__
 **/__pycache__
+
+output/*
+invoice/data/senders/*
+invoice/data/jobs/*
+invoice/data/recipients/*
