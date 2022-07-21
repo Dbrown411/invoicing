@@ -1,0 +1,12 @@
+{
+  "name": "Sender Name",
+  "role": "Role",
+  "street": "1234 Street",
+  "city": "City",
+  "state": "State",
+  "country": "Country",
+  "zip": "12345",
+  "phone": "+X (XXX) XXX-XXXX",
+  "email": "email@website",
+  "website": "https://website.com"
+}

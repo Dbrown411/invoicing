@@ -1,0 +1,10 @@
+{
+  "name": "Customer",
+  "company": "Company",
+  "street": "1234 Customer Street",
+  "city": "City",
+  "state": "ST",
+  "country": "Country",
+  "zip": "12345",
+  "phone": "+X (XXX) XXX-XXXX"
+}
