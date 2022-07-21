@@ -214,6 +214,9 @@ def build_invoice(job: "Job", days_due=30):
     page_layout.vertical_margin = page.get_page_info().get_height() * Decimal(
         0.02)
 
+    # Empty paragraph for spacing
+    add_space = lambda: page_layout.add(Paragraph(" "))
+
     # page_layout.add(
     #     Image(
     #         "https://s3.stackabuse.com/media/articles/creating-an-invoice-in-python-with-ptext-1.png",
@@ -223,17 +226,15 @@ def build_invoice(job: "Job", days_due=30):
 
     # Invoice information table
     page_layout.add(_build_invoice_information(job, due_date))
-
-    # Empty paragraph for spacing
-    page_layout.add(Paragraph(" "))
+    add_space()
 
     # Billing and shipping information table
     page_layout.add(_build_billing_and_shipping_information(job))
-    page_layout.add(Paragraph(" "))
+    add_space()
 
     # Itemized description
     page_layout.add(_build_itemized_description_table(job))
-    page_layout.add(Paragraph(" "))
+    add_space()
 
     if job.reference != "":
         page_layout.add(_build_addendums(job))

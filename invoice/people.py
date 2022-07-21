@@ -28,9 +28,6 @@ available_recipients = [
     for x in recipient_folder.glob("*.json")
 ]
 
-print(available_senders)
-print(available_recipients)
-
 
 @define(kw_only=True, slots=True)
 class Sender:
