@@ -9,6 +9,6 @@
       "rate": 100
     }
   ],
-  "shipping": false,
+  "shipping": true,
   "reference": "Reference for the invoice"
 }
