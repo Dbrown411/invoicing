@@ -1,0 +1,14 @@
+{
+  "sender": "default",
+  "recipient": "default",
+  "date": "01/01/1970",
+  "line_items": [
+    {
+      "description": "line item",
+      "hours": 1,
+      "rate": 100
+    }
+  ],
+  "shipping": false,
+  "reference": "Reference for the invoice"
+}

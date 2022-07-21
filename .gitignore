@@ -9,7 +9,7 @@ invoice/data/senders/*
 !invoice/data/senders/default.json
 
 invoice/data/jobs/*
-!invoice/data/jobs/default.json
+!invoice/data/jobs/test.json
 
 invoice/data/recipients/*
 !invoice/data/recipients/default.json
